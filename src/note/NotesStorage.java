@@ -38,14 +38,10 @@ public class NotesStorage
     public String chooseNote() throws IOException
     {
         List<String> notes = new ArrayList<>();
-        File[] files = Files.walk(Paths.get("notes/")).map(Path::toFile).toArray(File[]::new);
-        for(File file : files)
-        {
-            if(file.isFile() && file.getName().endsWith(".not"))
-            {
-                notes.add(file.getName());
-            }
-        }
+        Files.find(
+            Paths.get("notes/"), 1,
+                (path, attr)-> attr.isRegularFile() && path.getFileName().toString().endsWith(".not"))
+            .map(Path::toFile).forEach((file) -> notes.add(file.getName()));
         ChoiceDialog<String> dialog = new ChoiceDialog<>("", notes);
         dialog.setTitle("Sticky notes");
         dialog.setHeaderText("");
