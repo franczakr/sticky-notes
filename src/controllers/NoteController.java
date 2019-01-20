@@ -17,8 +17,8 @@ import java.util.Optional;
 
 public class NoteController
 {
-    private NotesStorage storage;
     private NoteCreator creator;
+    private String name;
 
     @FXML
     private HTMLEditor editor;
@@ -29,7 +29,6 @@ public class NoteController
     @FXML
     private void initialize()
     {
-        storage = new NotesStorage();
         creator = new NoteCreator();
     }
 
@@ -41,23 +40,37 @@ public class NoteController
     }
 
     @FXML
-    private void saveClick(final ActionEvent event) throws IOException
+    private void saveClick(final ActionEvent event)
     {
-        storage.save(editor.getHtmlText());
+        try
+        {
+            name = NotesStorage.save(editor.getHtmlText());
+        }
+        catch(IOException e)
+        {
+            creator.showErrorDialog(e.getMessage());
+        }
     }
 
     @FXML
-    private void loadClick(final ActionEvent event) throws IOException
+    private void loadClick(final ActionEvent event)
     {
-        String note = storage.chooseNote();
-        if(!note.equals(""))
+        try
         {
-            String text = storage.load(note);
-            if(!text.equals(""))
+            String note = NotesStorage.chooseNote();
+            if(!note.equals(""))
             {
-                Stage stage = new Stage();
-                creator.createNote(stage, text);
+                String text = NotesStorage.load(note);
+                if(!text.equals(""))
+                {
+                    Stage stage = new Stage();
+                    creator.createNote(stage, text);
+                }
             }
+        }
+        catch(IOException e)
+        {
+            creator.showErrorDialog(e.getMessage());
         }
     }
 
@@ -81,6 +94,19 @@ public class NoteController
     public void setText(String text)
     {
         editor.setHtmlText(text);
+    }
+
+    public void onExit()
+    {
+        try
+        {
+            if(name != null)
+                NotesStorage.saveLastActive(name);
+        }
+        catch(IOException e)
+        {
+            creator.showErrorDialog(e.getMessage());
+        }
     }
 
 }

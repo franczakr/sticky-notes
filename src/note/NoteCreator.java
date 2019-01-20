@@ -32,6 +32,7 @@ public class NoteCreator
             Parent root = fxmlLoader.load();
             NoteController controller = fxmlLoader.getController();
             controller.setText(text);
+            stage.setOnCloseRequest((e) -> {controller.onExit();});
             stage.setTitle("Sticky notes");
             stage.setScene(new Scene(root));
             Image i1 = loadImage("icons/icon16x16.png");
@@ -42,12 +43,7 @@ public class NoteCreator
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error Dialog");
-            alert.setHeaderText("");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            showErrorDialog(e.getMessage());
             Platform.exit();
             System.exit(0);
         }
@@ -58,5 +54,14 @@ public class NoteCreator
         InputStream stream = getClass().getClassLoader().getResourceAsStream(url);
         Objects.requireNonNull(stream, "Could not find file " + url);
         return new Image(stream);
+    }
+
+    public void showErrorDialog(String error)
+    {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error Dialog");
+        alert.setHeaderText("");
+        alert.setContentText(error);
+        alert.showAndWait();
     }
 }

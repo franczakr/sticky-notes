@@ -3,7 +3,6 @@ package note;
 
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.*;
@@ -16,7 +15,7 @@ import java.util.Optional;
 
 public class NotesStorage
 {
-    public void save(String note) throws IOException
+    public static String save(String note) throws IOException
     {
         if(!Files.exists(Paths.get("notes")))
             Files.createDirectory(Paths.get("notes"));
@@ -32,10 +31,12 @@ public class NotesStorage
             FileWriter writer = new FileWriter("notes/"+ result.get() +".not");
             writer.append(note);
             writer.close();
+            return result.get();
         }
+        return null;
     }
 
-    public String chooseNote() throws IOException
+    public static String chooseNote() throws IOException
     {
         List<String> notes = new ArrayList<>();
         Files.find(
@@ -52,7 +53,7 @@ public class NotesStorage
         return "";
     }
 
-    public String load(String name) throws IOException
+    public static String load(String name) throws IOException
     {
         File note = new File("notes/" + name);
         if(!note.exists() || note.isDirectory())
@@ -63,6 +64,28 @@ public class NotesStorage
         String text = reader.readLine();
         reader.close();
         return text;
+    }
+
+    public static void saveLastActive(String name) throws IOException
+    {
+        if(!Files.exists(Paths.get("notes")))
+            Files.createDirectory(Paths.get("notes"));
+
+        FileWriter writer = new FileWriter("notes/last");
+        writer.append(name).append(".not");
+        writer.close();
+    }
+
+    public static String getLastActive() throws IOException
+    {
+        if(!Files.exists(Paths.get("notes")) || !Files.exists(Paths.get("notes", "last")))
+            return null;
+
+        BufferedReader reader = new BufferedReader(new FileReader("notes/last"));
+        String name = reader.readLine();
+        reader.close();
+
+        return name;
     }
 
 }
